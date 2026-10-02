@@ -14,6 +14,14 @@ import { Leaf, Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAuth } from "@/contexts/auth-context"
 
+function resolveNextPath(userType: "visitante" | "empreendedor", requestedNext: string | null) {
+  const defaultPath = userType === "empreendedor" ? "/dashboard/empreendedor" : "/dashboard/visitante"
+  if (!requestedNext || !requestedNext.startsWith("/") || requestedNext.startsWith("//")) return defaultPath
+  if (userType === "empreendedor" && requestedNext.startsWith("/dashboard/empreendedor")) return requestedNext
+  if (userType === "visitante" && requestedNext.startsWith("/dashboard/visitante")) return requestedNext
+  return defaultPath
+}
+
 export default function LoginPage() {
   const router = useRouter()
   const { login, isAuthenticated, userType } = useAuth()
@@ -30,12 +38,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (isAuthenticated && userType) {
       const requestedNext = new URLSearchParams(window.location.search).get("next")
-      const safeNext = requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//")
-        ? requestedNext
-        : userType === "empreendedor"
-          ? "/dashboard/empreendedor"
-          : "/dashboard/visitante"
-      router.replace(safeNext)
+      router.replace(resolveNextPath(userType, requestedNext))
     }
   }, [isAuthenticated, userType, router])
 
@@ -50,12 +53,9 @@ export default function LoginPage() {
     if (result.success) {
       setSuccess(result.message)
       const requestedNext = new URLSearchParams(window.location.search).get("next")
-      const safeNext = requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//")
-        ? requestedNext
-        : result.userType === "empreendedor"
-          ? "/dashboard/empreendedor"
-          : "/dashboard/visitante"
-      setTimeout(() => router.push(safeNext), 500)
+      if (result.userType === "empreendedor" || result.userType === "visitante") {
+        router.replace(resolveNextPath(result.userType, requestedNext))
+      }
     } else {
       setError(result.message)
     }
@@ -181,7 +181,7 @@ export default function LoginPage() {
               <p className="text-sm font-medium text-foreground">Contas de teste:</p>
               <div className="text-sm text-muted-foreground space-y-1">
                 <p><strong>Visitante:</strong> maria@email.com / 123456</p>
-                <p><strong>Empreendedor:</strong> carlos@fazendaboavista.com / 123456</p>
+                <p><strong>Empreendedor ADM:</strong> carlos@fazendaboavista.com / 123456</p>
               </div>
             </div>
           </div>
