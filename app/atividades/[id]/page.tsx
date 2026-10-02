@@ -11,9 +11,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { loadStore } from "@/lib/client-store"
 import type { Atividade, Propriedade } from "@/lib/types"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function AtividadeDetalhePage() {
   const { id } = useParams<{ id: string }>()
+  const { user } = useAuth()
   const [activity, setActivity] = useState<Atividade | null>(null)
   const [property, setProperty] = useState<Propriedade | null>(null)
   const [spotsAvailable, setSpotsAvailable] = useState(0)
@@ -94,7 +96,13 @@ export default function AtividadeDetalhePage() {
                 <CardTitle>R$ {activity.preco.toFixed(2)} <span className="text-sm font-normal text-muted-foreground">/ pessoa</span></CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {spotsAvailable === 0 || (activity.dataEvento && hojeIso && activity.dataEvento < hojeIso) ? (
+                {user?.tipo === "empreendedor" ? (
+                  <Button className="w-full" size="lg" asChild>
+                    <Link href={activity.empreendedorId === user.id ? `/dashboard/empreendedor/atividades/${activity.id}` : "/dashboard/empreendedor"}>
+                      {activity.empreendedorId === user.id ? "Gerenciar atividade" : "Ir para o painel"}
+                    </Link>
+                  </Button>
+                ) : spotsAvailable === 0 || (activity.dataEvento && hojeIso && activity.dataEvento < hojeIso) ? (
                   <Button className="w-full" size="lg" disabled>Indisponível</Button>
                 ) : (
                   <Button className="w-full" size="lg" asChild>
