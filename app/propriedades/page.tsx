@@ -14,9 +14,13 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, SlidersHorizontal, MapPin } from "lucide-react"
 import { loadStore } from "@/lib/client-store"
-import type { Empreendedor, Propriedade } from "@/lib/types"
+import type { Propriedade } from "@/lib/types"
 
 const tiposPropriedade = ["fazenda", "sitio", "chacara", "pousada", "camping"]
+
+function normalizeSearch(value: string) {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim()
+}
 
 const tiposLabels: Record<string, string> = {
   fazenda: "Fazenda",
@@ -52,13 +56,11 @@ function PropriedadesContent() {
   }, [queryParam])
 
   const [todasPropriedades, setTodasPropriedades] = useState<Propriedade[]>([])
-  const [empreendedores, setEmpreendedores] = useState<Empreendedor[]>([])
 
   useEffect(() => {
     const refresh = () => {
       const store = loadStore()
       setTodasPropriedades(store.propriedades)
-      setEmpreendedores(store.empreendedores)
     }
     refresh()
     window.addEventListener("turismo-rural-store", refresh)
@@ -67,8 +69,6 @@ function PropriedadesContent() {
 
   const allProperties = useMemo(() => {
     return todasPropriedades.filter(prop => prop.ativo).map(prop => {
-      const emp = empreendedores.find(e => e.id === prop.empreendedorId)
-
       return {
         id: prop.id,
         name: prop.nome,
@@ -80,17 +80,18 @@ function PropriedadesContent() {
         price: prop.preco,
         capacity: prop.capacidade,
         rooms: Math.ceil(prop.capacidade / 3),
-        tags: [tiposLabels[prop.tipo] || prop.tipo, emp?.cidade || ""],
+        tags: [tiposLabels[prop.tipo] || prop.tipo, prop.cidade],
         tipo: prop.tipo,
         comodidades: prop.comodidades
       }
     })
-  }, [todasPropriedades, empreendedores])
+  }, [todasPropriedades])
 
   const filteredProperties = allProperties.filter((property) => {
+    const normalizedQuery = normalizeSearch(searchQuery)
     const matchesSearch =
-      property.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      property.location.toLowerCase().includes(searchQuery.toLowerCase())
+      normalizeSearch(property.name).includes(normalizedQuery) ||
+      normalizeSearch(property.location).includes(normalizedQuery)
 
     const matchesPrice =
       property.price >= priceRange[0] &&
