@@ -28,6 +28,7 @@ export function Header() {
   const userName = user?.nome?.split(" ")[0] || "Usuário"
   const isEmpreendedor = userType === "empreendedor"
   const empresaNome = user?.tipo === "empreendedor" ? user.nomeEmpresa : null
+  const isAdmin = user?.tipo === "empreendedor" && user.isAdmin
 
   return (
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 border-b border-border">
@@ -75,7 +76,7 @@ export function Header() {
                       {isEmpreendedor ? empresaNome : user?.email}
                     </p>
                     <span className="inline-block mt-1 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                      {isEmpreendedor ? "Empreendedor" : "Visitante"}
+                      {isAdmin ? "Administrador" : isEmpreendedor ? "Empreendedor" : "Visitante"}
                     </span>
                   </div>
                   <DropdownMenuSeparator />
@@ -153,7 +154,7 @@ export function Header() {
                     <div>
                       <p className="text-sm font-medium">{userName}</p>
                       <p className="text-xs text-muted-foreground">
-                        {isEmpreendedor ? "Empreendedor" : "Visitante"}
+                        {isAdmin ? "Administrador" : isEmpreendedor ? "Empreendedor" : "Visitante"}
                       </p>
                     </div>
                   </div>
