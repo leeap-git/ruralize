@@ -99,19 +99,29 @@ export default function PropertyDetailPage() {
                 <CardTitle>R$ {property.preco.toFixed(2)} <span className="text-sm font-normal text-muted-foreground">/ noite</span></CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button className="w-full" size="lg" asChild>
-                  <Link href={`/dashboard/visitante/reservas/nova?propriedadeId=${property.id}`}><CalendarDays className="mr-2 h-4 w-4" />Reservar</Link>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    if (!user) return
-                    try { toggleFavorito(user.id, property.id) } catch (error) { alert(error instanceof Error ? error.message : "Não foi possível favoritar a propriedade.") }
-                  }}
-                >
-                  <Heart className="mr-2 h-4 w-4" />{isFavorite ? "Favoritado" : "Favoritar"}
-                </Button>
+                {user?.tipo === "empreendedor" ? (
+                  <Button className="w-full" size="lg" asChild>
+                    <Link href={property.empreendedorId === user.id ? `/dashboard/empreendedor/propriedades/${property.id}` : "/dashboard/empreendedor"}>
+                      <CalendarDays className="mr-2 h-4 w-4" />{property.empreendedorId === user.id ? "Gerenciar propriedade" : "Ir para o painel"}
+                    </Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button className="w-full" size="lg" asChild>
+                      <Link href={`/dashboard/visitante/reservas/nova?propriedadeId=${property.id}`}><CalendarDays className="mr-2 h-4 w-4" />Reservar</Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        if (!user) return
+                        try { toggleFavorito(user.id, property.id) } catch (error) { alert(error instanceof Error ? error.message : "Não foi possível favoritar a propriedade.") }
+                      }}
+                    >
+                      <Heart className="mr-2 h-4 w-4" />{isFavorite ? "Favoritado" : "Favoritar"}
+                    </Button>
+                  </>
+                )}
                 <p className="text-sm text-muted-foreground">{property.endereco}</p>
               </CardContent>
             </Card>
