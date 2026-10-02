@@ -91,8 +91,8 @@ export default function SobrePage() {
               </div>
               <div className="aspect-video bg-muted rounded-lg overflow-hidden">
                 <img
-                  src="/placeholder.jpg&text=Ruralize"
-                  alt="Ruralize"
+                  src="/images/fazenda-boa-vista.jpg"
+                  alt="Experiência de turismo rural no Ruralize"
                   className="object-cover w-full h-full"
                 />
               </div>
