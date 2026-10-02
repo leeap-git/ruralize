@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, MapPin } from "lucide-react"
 import { loadStore } from "@/lib/client-store"
-import type { Atividade, Empreendedor, Propriedade } from "@/lib/types"
+import type { Atividade, Propriedade } from "@/lib/types"
 
 const tiposLabels: Record<string, string> = {
   passeio: "Passeio",
@@ -22,13 +22,16 @@ const tiposLabels: Record<string, string> = {
 
 const tipos = ["Todos", "passeio", "workshop", "gastronomia", "aventura", "cultural", "infantil"]
 
+function normalizeSearch(value: string) {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim()
+}
+
 export default function AtividadesPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [tipoFiltro, setTipoFiltro] = useState("Todos")
   const [ordenacao, setOrdenacao] = useState("data")
 
   const [todasAtividades, setTodasAtividades] = useState<Atividade[]>([])
-  const [empreendedores, setEmpreendedores] = useState<Empreendedor[]>([])
   const [properties, setProperties] = useState<Propriedade[]>([])
   const [reservas, setReservas] = useState<ReturnType<typeof loadStore>["reservas"]>([])
   const [hojeIso, setHojeIso] = useState("")
@@ -39,7 +42,6 @@ export default function AtividadesPage() {
     const refresh = () => {
       const store = loadStore()
       setTodasAtividades(store.atividades)
-      setEmpreendedores(store.empreendedores)
       setProperties(store.propriedades)
       setReservas(store.reservas)
     }
@@ -53,12 +55,12 @@ export default function AtividadesPage() {
       .filter(ativ => ativ.ativo && !!properties.find(p => p.id === ativ.propriedadeId && p.ativo))
       .filter(ativ => !ativ.dataEvento || !hojeIso || ativ.dataEvento >= hojeIso)
       .map(ativ => {
-      const emp = empreendedores.find(e => e.id === ativ.empreendedorId)
+      const property = properties.find(p => p.id === ativ.propriedadeId)
       return {
         id: ativ.id,
         name: ativ.nome,
-        property: emp?.nomeEmpresa || "",
-        location: emp ? `${emp.cidade}, ${emp.estado}` : "",
+        property: property?.nome || "",
+        location: property ? `${property.cidade}, ${property.estado}` : "",
         description: ativ.descricao.substring(0, 100) + "...",
         image: ativ.imagem || "/placeholder.jpg",
         date: ativ.dataEvento || "Sob consulta",
@@ -72,13 +74,14 @@ export default function AtividadesPage() {
         type: ativ.tipo,
       }
     })
-  }, [todasAtividades, empreendedores, properties, reservas, hojeIso])
+  }, [todasAtividades, properties, reservas, hojeIso])
 
   const filteredActivities = allActivities.filter((activity) => {
+    const normalizedQuery = normalizeSearch(searchQuery)
     const matchesSearch = 
-      activity.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      activity.property.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      activity.location.toLowerCase().includes(searchQuery.toLowerCase())
+      normalizeSearch(activity.name).includes(normalizedQuery) ||
+      normalizeSearch(activity.property).includes(normalizedQuery) ||
+      normalizeSearch(activity.location).includes(normalizedQuery)
     const matchesTipo = tipoFiltro === "Todos" || activity.type === tipoFiltro
     return matchesSearch && matchesTipo
   })
