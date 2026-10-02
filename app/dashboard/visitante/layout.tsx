@@ -10,7 +10,12 @@ export default function VisitanteDashboardLayout({ children }: { children: React
   const pathname = usePathname()
 
   useEffect(() => {
-    if (!isLoading && (!user || userType !== "visitante")) router.replace(`/login?next=${encodeURIComponent(pathname)}`)
+    if (isLoading) return
+    if (!user) {
+      router.replace(`/login?next=${encodeURIComponent(pathname)}`)
+      return
+    }
+    if (userType !== "visitante") router.replace("/dashboard/empreendedor")
   }, [isLoading, user, userType, router, pathname])
 
   if (isLoading || !user || userType !== "visitante") return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando sessão...</div>
