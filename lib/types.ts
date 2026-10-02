@@ -22,6 +22,7 @@ export interface Empreendedor extends ContaBase {
   cidade: string
   estado: string
   descricao?: string
+  isAdmin?: boolean
 }
 
 export interface Propriedade {

@@ -58,6 +58,7 @@ export const empreendedores: Empreendedor[] = [
     cidade: "Ourinhos",
     estado: "SP",
     descricao: "Propriedade rural familiar com mais de 50 anos de tradição",
+    isAdmin: true,
     createdAt: "2024-01-01"
   },
   {
@@ -118,7 +119,7 @@ export const propriedades: Propriedade[] = [
   },
   {
     id: "prop-2",
-    empreendedorId: "emp-2",
+    empreendedorId: "emp-1",
     nome: "Sítio São João",
     descricao: "Sítio aconchegante em meio à natureza exuberante. Oferecemos experiências únicas como ordenha, colheita de frutas orgânicas e passeios a cavalo. Ideal para quem busca tranquilidade e contato direto com a vida rural.",
     endereco: "Rodovia SP-270 km 42",
@@ -140,7 +141,7 @@ export const propriedades: Propriedade[] = [
   },
   {
     id: "prop-3",
-    empreendedorId: "emp-3",
+    empreendedorId: "emp-1",
     nome: "Recanto Verde Eco Resort",
     descricao: "Resort ecológico com foco em sustentabilidade e bem-estar. Nossas instalações utilizam energia solar e água de nascente. Oferecemos trilhas ecológicas, observação de pássaros e oficinas de educação ambiental.",
     endereco: "Estrada Municipal s/n",
@@ -183,7 +184,7 @@ export const propriedades: Propriedade[] = [
   },
   {
     id: "prop-5",
-    empreendedorId: "emp-2",
+    empreendedorId: "emp-1",
     nome: "Chácara Recanto Feliz",
     descricao: "Chácara familiar perfeita para fins de semana relaxantes. Com lago para pesca, pomar variado e muito espaço para as crianças brincarem. Aluguel para grupos e famílias.",
     endereco: "Estrada Vicinal km 8",
@@ -244,7 +245,7 @@ export const atividades: Atividade[] = [
   {
     id: "ativ-3",
     propriedadeId: "prop-2",
-    empreendedorId: "emp-2",
+    empreendedorId: "emp-1",
     nome: "Colheita de Frutas Orgânicas",
     descricao: "Colha suas próprias frutas orgânicas diretamente do pomar. Aprenda sobre cultivo sustentável e leve para casa frutas frescas.",
     tipo: "workshop",
@@ -261,7 +262,7 @@ export const atividades: Atividade[] = [
   {
     id: "ativ-4",
     propriedadeId: "prop-3",
-    empreendedorId: "emp-3",
+    empreendedorId: "emp-1",
     nome: "Trilha Ecológica com Observação de Aves",
     descricao: "Caminhe por trilhas preservadas e observe mais de 50 espécies de aves da região. Guia biólogo acompanha o grupo.",
     tipo: "aventura",
@@ -278,7 +279,7 @@ export const atividades: Atividade[] = [
   {
     id: "ativ-5",
     propriedadeId: "prop-2",
-    empreendedorId: "emp-2",
+    empreendedorId: "emp-1",
     nome: "Oficina de Queijo Artesanal",
     descricao: "Aprenda a fazer queijo artesanal do zero com nosso mestre queijeiro. Leve seu próprio queijo para casa!",
     tipo: "workshop",
@@ -313,7 +314,7 @@ export const atividades: Atividade[] = [
   {
     id: "ativ-7",
     propriedadeId: "prop-3",
-    empreendedorId: "emp-3",
+    empreendedorId: "emp-1",
     nome: "Festival da Colheita",
     descricao: "Grande evento anual celebrando a colheita! Música ao vivo, feira de produtos orgânicos, oficinas e muita diversão.",
     tipo: "cultural",

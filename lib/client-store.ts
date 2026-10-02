@@ -33,8 +33,10 @@ export type Store = {
   bloqueios: Record<string, string[]>
 }
 
-const KEY = "turismo_rural_crud_v3"
-const LEGACY_KEYS = ["turismo_rural_crud_v2", "turismo_rural_crud_v1"]
+const KEY = "turismo_rural_crud_v4"
+const LEGACY_KEYS = ["turismo_rural_crud_v3", "turismo_rural_crud_v2", "turismo_rural_crud_v1"]
+const DEMO_VISITOR_ID = "user-1"
+const DEMO_ADMIN_ID = "emp-1"
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
@@ -73,6 +75,38 @@ function normalizeStore(value: Omit<Store, "bloqueios"> & Partial<Pick<Store, "b
   return { ...value, bloqueios: value.bloqueios && typeof value.bloqueios === "object" ? value.bloqueios : {} }
 }
 
+function ensureDemoAccounts(store: Store): Store {
+  const demoVisitor = seedUsuarios.find((u) => u.id === DEMO_VISITOR_ID)
+  const demoAdmin = seedEmpreendedores.find((e) => e.id === DEMO_ADMIN_ID)
+
+  if (demoVisitor) {
+    const current = store.usuarios.find((u) => u.id === DEMO_VISITOR_ID)
+    const repaired = current
+      ? { ...current, id: DEMO_VISITOR_ID, email: demoVisitor.email, tipo: "visitante" as const }
+      : clone(demoVisitor)
+    store.usuarios = [repaired, ...store.usuarios.filter((u) => u.id !== DEMO_VISITOR_ID)]
+  }
+
+  if (demoAdmin) {
+    const current = store.empreendedores.find((e) => e.id === DEMO_ADMIN_ID)
+    const repaired = current
+      ? { ...current, id: DEMO_ADMIN_ID, email: demoAdmin.email, tipo: "empreendedor" as const, isAdmin: true }
+      : clone(demoAdmin)
+    store.empreendedores = [repaired, ...store.empreendedores.filter((e) => e.id !== DEMO_ADMIN_ID)]
+  }
+
+  return store
+}
+
+function migrateLegacyStore(value: Omit<Store, "bloqueios"> & Partial<Pick<Store, "bloqueios">>): Store {
+  const store = ensureDemoAccounts(normalizeStore(value))
+  // Nesta versão, a conta de demonstração do empreendedor é o ADM do protótipo.
+  // A migração é executada uma única vez ao sair do v3 e mantém novos cadastros independentes depois disso.
+  store.propriedades = store.propriedades.map((property) => ({ ...property, empreendedorId: DEMO_ADMIN_ID }))
+  store.atividades = store.atividades.map((activity) => ({ ...activity, empreendedorId: DEMO_ADMIN_ID }))
+  return store
+}
+
 export function loadStore(): Store {
   if (typeof window === "undefined") return seeds()
 
@@ -81,7 +115,7 @@ export function loadStore(): Store {
     if (raw) {
       const parsed: unknown = JSON.parse(raw)
       if (isValidStore(parsed)) {
-        const normalized = normalizeStore(parsed)
+        const normalized = ensureDemoAccounts(normalizeStore(parsed))
         window.localStorage.setItem(KEY, JSON.stringify(normalized))
         return normalized
       }
@@ -92,7 +126,7 @@ export function loadStore(): Store {
       if (!legacyRaw) continue
       const parsed: unknown = JSON.parse(legacyRaw)
       if (isValidStore(parsed)) {
-        const normalized = normalizeStore(parsed)
+        const normalized = migrateLegacyStore(parsed)
         window.localStorage.setItem(KEY, JSON.stringify(normalized))
         return normalized
       }
@@ -101,7 +135,7 @@ export function loadStore(): Store {
     // Recria o store abaixo quando o conteúdo salvo está corrompido.
   }
 
-  const initial = seeds()
+  const initial = ensureDemoAccounts(seeds())
   window.localStorage.setItem(KEY, JSON.stringify(initial))
   return initial
 }
@@ -112,7 +146,7 @@ export function saveStore(store: Store): void {
 }
 
 export function resetStore(): Store {
-  const initial = seeds()
+  const initial = ensureDemoAccounts(seeds())
   saveStore(initial)
   return initial
 }
