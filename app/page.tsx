@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { loadStore } from "@/lib/client-store"
-import type { Propriedade, Atividade, Empreendedor } from "@/lib/types"
 import type { Store } from "@/lib/client-store"
 
 export default function HomePage() {
@@ -35,7 +34,6 @@ export default function HomePage() {
     .slice(0, 3), [store, hojeIso])
 
   const featuredProperties = propriedadesDestaque.map(prop => {
-    const emp = store?.empreendedores.find(e => e.id === prop.empreendedorId)
     return {
       id: prop.id,
       name: prop.nome,
@@ -47,17 +45,17 @@ export default function HomePage() {
       price: prop.preco,
       capacity: prop.capacidade,
       rooms: Math.ceil(prop.capacidade / 3),
-      tags: [prop.tipo.charAt(0).toUpperCase() + prop.tipo.slice(1), emp?.cidade || ""],
+      tags: [prop.tipo.charAt(0).toUpperCase() + prop.tipo.slice(1), prop.cidade],
     }
   })
 
   const upcomingActivities = atividadesProximas.map(ativ => {
-    const emp = store?.empreendedores.find(e => e.id === ativ.empreendedorId)
+    const property = store?.propriedades.find(p => p.id === ativ.propriedadeId)
     return {
       id: ativ.id,
       name: ativ.nome,
-      property: emp?.nomeEmpresa || "",
-      location: emp ? `${emp.cidade}, ${emp.estado}` : "",
+      property: property?.nome || "",
+      location: property ? `${property.cidade}, ${property.estado}` : "",
       description: ativ.descricao.substring(0, 100) + "...",
       image: ativ.imagem || "/placeholder.jpg",
       date: ativ.dataEvento || "Sob consulta",
