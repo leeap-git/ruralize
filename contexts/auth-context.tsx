@@ -39,6 +39,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 const PASSWORDS_KEY = "turismo_rural_passwords_v1"
 const SESSION_KEY = "turismo_rural_user"
 const SESSION_TYPE_KEY = "turismo_rural_user_type"
+const DEMO_PASSWORDS: Record<string, string> = {
+  "maria@email.com": "123456",
+  "carlos@fazendaboavista.com": "123456",
+}
 
 function readPasswords(): Record<string, string> {
   if (typeof window === "undefined") return {}
@@ -108,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!account) return { success: false, message: "E-mail não cadastrado" }
 
     const passwords = readPasswords()
-    const senhaCorreta = passwords[normalized] || "123456"
+    const senhaCorreta = DEMO_PASSWORDS[normalized] ?? passwords[normalized] ?? "123456"
     if (senhaCorreta !== senha) return { success: false, message: "Senha incorreta" }
 
     setUser(account)
